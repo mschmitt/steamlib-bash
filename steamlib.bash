@@ -241,3 +241,33 @@ function steam_set_nickname() {
 		> "$CURLTMP" && return 0 || errexit 'set_name'
 }
 
+function steam_set_avatar(){
+	if [[ ! -v STEAM_SESSIONID ]]
+	then
+		errexit 'call steam_get_sessionid or set STEAM_SESSIONID before calling steam_set_avatar'
+	fi
+	if [[ ! -v STEAM_STEAMID ]]
+	then
+		errexit 'call steam_get_steamid or set STEAM_STEAMID before calling steam_set_avatar'
+	fi
+	if [[ -z "$1" || ! -s "$1" ]]
+	then
+		errexit "No picture provided"
+	fi
+	$CURL 'https://steamcommunity.com/actions/FileUploader' \
+		--form "MAX_FILE_SIZE=1048576" \
+		--form "type=player_avatar_image" \
+		--form "sId=$STEAM_STEAMID" \
+		--form "sessionid=$STEAM_SESSIONID" \
+		--form "doSub=1" \
+		--form "json=1" \
+		--form "avatar=@$1" > "$CURLTMP" || errexit 'curl_upload'
+	SUCCESS="$(jq --raw-output '.success' < "$CURLTMP")"
+	if [[ "$SUCCESS" == 'true' ]]
+	then
+		STEAMLIB_STATUS="Avatar changed."
+		return 0
+	else
+		errexit 'set avatar'
+	fi
+}
