@@ -186,15 +186,6 @@ function steam_get_sessionid(){
 	fi
 }
 
-function steam_set_nickname(){
-	if [[ -z "$1" ]]
-	then
-		errexit "provide new nickname"
-	else
-		NEWNICK="$1"
-	fi
-}
-
 function steam_get_apikey(){
 	# Get Steam API key
 	$CURL 'https://steamcommunity.com/dev/apikey' > "$CURLTMP" || errexit 'curl_apikey'
